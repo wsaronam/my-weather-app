@@ -31,6 +31,8 @@ function displayWeather() {
     // get weather data from localStorage
     const weatherData = JSON.parse(localStorage.getItem("weatherData"));
     currentTemp = weatherData.main.temp; // store temperature in case of later conversion
+    weatherCondition = weatherData.weather[0].main; // store weather condition to modify background image
+    weatherIcon = weatherData.weather[0].icon;
     console.log(weatherData);
     
     // no input detected check
@@ -47,6 +49,13 @@ function displayWeather() {
     }
     catch { }
 
+    
+
+    // calls function to change weather icon
+    setWeatherIcon(weatherIcon);
+
+    // calls function to change page background based on weather condition
+    setWeatherBackground(weatherCondition);
 
     // insert weather data into html
     document.getElementById("city-name").textContent = `${weatherData.name}, ${weatherData.sys.country}`;
@@ -61,6 +70,49 @@ function displayWeather() {
 // calls the displayWeather function when the page loads
 if (window.location.pathname.endsWith("weather.html")) {
     window.onload = displayWeather;
+}
+
+
+
+// updates weather data background based on temperature condition found
+function setWeatherBackground(condition) {
+    let imageUrl;
+
+    // currently using unsplash.com for free use images
+    switch (condition) {
+        case "Clear":
+            imageUrl = "url('https://plus.unsplash.com/premium_photo-1727730047398-49766e915c1d?q=80&w=2712&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')";
+            break;
+        case "Clouds":
+            imageUrl = "url('https://plus.unsplash.com/premium_photo-1667689956673-8737a299aa8c?q=80&w=2576&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')";
+            break;
+        case "Rain":
+            imageUrl = "url('https://images.unsplash.com/photo-1607500098489-1991d1fbab7a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')";
+            break;
+        case "Snow":
+            imageUrl = "url('https://plus.unsplash.com/premium_photo-1669325007869-d3b17d2d31e6?q=80&w=2575&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')";
+            break;
+        case "Thunderstorm":
+            imageUrl = "url('https://plus.unsplash.com/premium_photo-1673278171340-99b4dbf0418f?q=80&w=2572&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')";
+            break;
+        default:
+            imageUrl = "url('https://plus.unsplash.com/premium_photo-1701646600064-3365efea1ba8?q=80&w=2664&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')"; // default "fallback" image
+    }
+
+    // style the background image 
+    // WIP: MOVE THIS TO CSS FILE LATER
+    document.body.style.backgroundImage = imageUrl;
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    document.body.style.backgroundRepeat = "no-repeat";
+    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.transition = "background 0.5s ease-in-out";
+}
+
+// updates weather data icon using openweathermap's icons
+function setWeatherIcon(weatherIcon) {
+    const weatherIconUrl = `https://openweathermap.org/img/wn/${weatherIcon}@2x.png`;
+    document.getElementById("weather-icon").src = weatherIconUrl;
 }
 
 
