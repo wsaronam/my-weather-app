@@ -23,4 +23,12 @@ public class WeatherService {
             .bodyToMono(String.class)
             .block();
     }
+
+    public String getFiveDayForecast(String city) {
+        return this.webClient.get()
+            .uri("/forecast?q=" + city + "&units=" + unitType + "&appid=" + api_key)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block();
+    }
 }

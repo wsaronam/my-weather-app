@@ -15,7 +15,7 @@ function searchForWeatherData(event) {
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                // put weather data in localStorage
+                // put weather datas in localStorage
                 localStorage.setItem("weatherData", JSON.stringify(data));
 
                 // open new tab for weather page
@@ -27,13 +27,15 @@ function searchForWeatherData(event) {
 
 
 // This function will take the JSON data from the searchForWeatherData function and prepare it for display on HTML
+// This function will also take the Five-Day forecast and prepare it for display on HTML
+//     Maybe we should separate this into a separate function
 function displayWeather() {
     // get weather data from localStorage
     const weatherData = JSON.parse(localStorage.getItem("weatherData"));
-    currentTemp = weatherData.main.temp; // store temperature in case of later conversion
-    weatherCondition = weatherData.weather[0].main; // store weather condition to modify background image
-    weatherIcon = weatherData.weather[0].icon;
-    console.log(weatherData);
+    const currentWeather = weatherData["currentWeather"];
+    currentTemp = currentWeather.main.temp; // store temperature in case of later conversion
+    weatherCondition = currentWeather.weather[0].main; // store weather condition to modify background image
+    weatherIcon = currentWeather.weather[0].icon;
     
     // no input detected check
     if (!weatherData) {
@@ -58,13 +60,46 @@ function displayWeather() {
     setWeatherBackground(weatherCondition);
 
     // insert weather data into html
-    document.getElementById("city-name").textContent = `${weatherData.name}, ${weatherData.sys.country}`;
-    document.getElementById("temperature").textContent = `${weatherData.main.temp}F`;
+    document.getElementById("city-name").textContent = `${currentWeather.name}, ${currentWeather.sys.country}`;
+    document.getElementById("temperature").textContent = `${currentWeather.main.temp}F`;
     // document.getElementById("feels-like").textContent = `${weatherData.main.feels_like}F`;
-    document.getElementById("condition").textContent = `${weatherData.weather[0].main} - ${weatherData.weather[0].description}`;
-    document.getElementById("humidity").textContent = `${weatherData.main.humidity}%`;
-    document.getElementById("wind-speed").textContent = `${weatherData.wind.speed} m/s`;
-    document.getElementById("pressure").textContent = `${weatherData.main.pressure} hPa`;
+    document.getElementById("condition").textContent = `${currentWeather.weather[0].main} - ${currentWeather.weather[0].description}`;
+    document.getElementById("humidity").textContent = `${currentWeather.main.humidity}%`;
+    document.getElementById("wind-speed").textContent = `${currentWeather.wind.speed} m/s`;
+    document.getElementById("pressure").textContent = `${currentWeather.main.pressure} hPa`;
+
+
+
+    const fiveDayForecast = weatherData["fiveDayForecast"].list;
+    console.log(fiveDayForecast);
+    const forecastContainer = document.getElementById("forecast");
+
+    const dailyForecasts = {}; // plan to store a mid-day forecast every day for the 5 day forecast
+
+    fiveDayForecast.forEach((entry) => {
+        const date = entry.dt_txt.split(" ")[0]; // extract dates in this format (YYYY-MM-DD)
+        if (!dailyForecasts[date] && entry.dt_txt.includes("12:00:00")) {
+            dailyForecasts[date] = entry; // mid-day forecast
+        }
+    });
+
+    Object.values(dailyForecasts).forEach((forecast) => {
+        const temp = forecast.main.temp;
+        const iconCode = forecast.weather[0].icon;
+        const date = new Date(forecast.dt * 1000).toLocaleDateString("en-US", { weekday: "long" });
+
+        // build the HTML for the 5-day forecast
+        //     maybe we should move this to the HTML later
+        const forecastHTML = `
+            <div class="forecast-item">
+                <p><strong>${date}</strong></p>
+                <img src="https://openweathermap.org/img/wn/${iconCode}@2x.png" alt="Weather Icon">
+                <p>${temp}°F</p>
+            </div>
+        `;
+
+        forecastContainer.innerHTML += forecastHTML;
+    });
 }
 
 // calls the displayWeather function when the page loads
