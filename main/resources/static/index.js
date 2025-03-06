@@ -26,6 +26,35 @@ function searchForWeatherData(event) {
 }
 
 
+// This function will use the API to search for the user's current location and put it in the search bar
+function locateUser() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            // Send the lat and lon to the backend to get weather info
+            fetch(`http://localhost:8080/api/location?lat=${lat}&lon=${lon}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data); // delete later
+                    document.getElementById("cityName").innerHTML = data;
+                })
+                .catch(error => {
+                    console.error("Error fetching weather data:", error);
+                });
+        }, 
+        function(error) {
+            console.error("Error getting location:", error);
+        });
+    }
+
+    else {
+        console.log("Geolocation is not supported by this browser.");
+    }
+}
+
+
 // This function will take the JSON data from the searchForWeatherData function and prepare it for display on HTML
 // This function will also take the Five-Day forecast and prepare it for display on HTML
 //     Maybe we should separate this into a separate function
@@ -134,13 +163,11 @@ function setWeatherBackground(condition) {
             imageUrl = "url('https://plus.unsplash.com/premium_photo-1701646600064-3365efea1ba8?q=80&w=2664&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')"; // default "fallback" image
     }
 
-    // style the background image 
-    // WIP: MOVE THIS TO CSS FILE LATER
+    // style the background
     document.body.style.backgroundImage = imageUrl;
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center";
-    document.body.style.backgroundRepeat = "no-repeat";
-    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.backgroundSize = "cover"; 
+    document.body.style.backgroundPosition = "center"; 
+    document.body.style.backgroundRepeat = "no-repeat"; 
     document.body.style.transition = "background 0.5s ease-in-out";
 }
 

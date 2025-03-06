@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 
+
 @RestController
 @RequestMapping("/api/weather")
 public class WeatherController {
@@ -24,6 +25,14 @@ public class WeatherController {
         this.weatherService = weatherService;
         this.objectMapper = objectMapper;
     }
+
+
+    @GetMapping("/location")
+    public String getLocation(@RequestParam double lat, @RequestParam double lon) {
+        // get city using the lat/lon coordinates
+        return weatherService.getCityFromCoordinates(lat, lon);
+    }
+
 
     @GetMapping("/{city}")
     public Map<String, Object> getWeather(@PathVariable String city) {
