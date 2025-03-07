@@ -34,11 +34,10 @@ function locateUser() {
             const lon = position.coords.longitude;
 
             // Send the lat and lon to the backend to get weather info
-            fetch(`http://localhost:8080/api/location?lat=${lat}&lon=${lon}`)
-                .then(response => response.json())
+            fetch(`http://localhost:8080/api/weather/location?lat=${lat}&lon=${lon}`)
+                .then(response => response.text())  // data is returned as string
                 .then(data => {
-                    console.log(data); // delete later
-                    document.getElementById("cityName").innerHTML = data;
+                    document.getElementById("cityName").value = data;
                 })
                 .catch(error => {
                     console.error("Error fetching weather data:", error);
