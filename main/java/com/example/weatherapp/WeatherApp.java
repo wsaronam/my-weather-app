@@ -11,6 +11,7 @@ import javafx.scene.web.WebView;
 import javafx.scene.web.WebEngine;
 
 import javafx.stage.Stage;
+import netscape.javascript.JSObject;
 
 
 
@@ -18,6 +19,10 @@ import javafx.stage.Stage;
 public class WeatherApp extends Application {
 
     private TextField cityInput;
+
+    // create webview so we can run JS for geolocation
+    WebView webView = new WebView();
+    WebEngine webEngine = webView.getEngine();
 
 
     @Override
@@ -29,14 +34,13 @@ public class WeatherApp extends Application {
         cityInput.setPromptText("Enter city name...");
         Button searchButton = new Button("Get Weather");
         Button locateButton = new Button("Locate Me");
-        
         searchButton.setOnAction(e -> getWeather());
         locateButton.setOnAction(e -> getLocation(cityInput));
+
 
         VBox layout = new VBox(10, cityInput, searchButton, locateButton);
         layout.setPadding(new Insets(20));
 
-        
         Scene scene = new Scene(layout, 1920, 1080);
         scene.getStylesheets().add(getClass().getResource("/static/styles.css").toExternalForm());
         primaryStage.setScene(scene);
@@ -46,31 +50,52 @@ public class WeatherApp extends Application {
 
     private void getLocation(TextField cityInput) {
 
-        // create webview so we can run JS for geolocation
-        WebView webView = new WebView();
-        WebEngine webEngine = webView.getEngine();
+        webEngine.setJavaScriptEnabled(true);
+
+        // use the Java object in JS
+        JSObject window = (JSObject) webEngine.executeScript("window");
+        JavaBridge bridge = new JavaBridge(cityInput);
+        window.setMember("javaApp", bridge);
         
         // build JS function for geolocation
         String script = """
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
+            function(position) {
+                console.log("Location permission granted");
+                let lat = position.coords.latitude;
+                let lon = position.coords.longitude;
+                console.log("Latitude: " + lat + ", Longitude: " + lon);
+            },
+            function(error) {
+                console.error("Geolocation error:", error);
+                alert("Geolocation error: " + error.message);
+            }
+                
+            // navigator.geolocation.getCurrentPosition(
+            //     function(position) {
+            //         let lat = position.coords.latitude;
+            //         let lon = position.coords.longitude;
 
-                    // Send the lat and lon to the backend to get weather info
-                    fetch(`http://localhost:8080/api/weather/location?lat=${lat}&lon=${lon}`)
-                        .then(response => response.text())
-                        .then(data => {
-                            document.getElementById("cityInput").value = data;
-                        })
-                        .catch(error => {
-                            console.error("Error fetching weather data:", error);
-                        });
-                }, 
-                function(error) {
-                    console.error("Error getting location:", error);
-                });
+            //         // Send the lat and lon to the backend to get weather info
+            //         fetch(`http://localhost:8080/api/weather/location?lat=${lat}&lon=${lon}`)
+            //             .then(response => response.text())
+            //             .then(data => {
+            //                 console.log("Received city from backend: " + data); // delete later 
+            //                 window.javaApp.setCity(data);
+            //             })
+            //             .catch(error => console.error('Error fetching location:', error));
+            //     }, 
+            //     function(error) {
+            //         console.error("Error getting location:", error);
+            //     }
+            // );
         """;
+
+        // temporary check for errors  DELETE LATER
+        webEngine.getLoadWorker().exceptionProperty().addListener((obs, oldException, newException) -> {
+            if (newException != null) {
+                newException.printStackTrace();
+            }
+        });
 
         // run the JS in WebView
         webEngine.loadContent("<html><script>" + script + "</script></html>");
