@@ -23,11 +23,13 @@ public class WeatherApp extends Application {
     // create webview so we can run JS for geolocation
     WebView webView = new WebView();
     WebEngine webEngine = webView.getEngine();
+    
 
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("My Weather App");
+        webEngine.setJavaScriptEnabled(true);
 
         // Build the main page stuff here
         cityInput = new TextField();
@@ -37,8 +39,7 @@ public class WeatherApp extends Application {
         searchButton.setOnAction(e -> getWeather());
         locateButton.setOnAction(e -> getLocation(cityInput));
 
-
-        VBox layout = new VBox(10, cityInput, searchButton, locateButton);
+        VBox layout = new VBox(10, cityInput, searchButton, locateButton, webView);
         layout.setPadding(new Insets(20));
 
         Scene scene = new Scene(layout, 1920, 1080);
@@ -50,45 +51,16 @@ public class WeatherApp extends Application {
 
     private void getLocation(TextField cityInput) {
 
-        webEngine.setJavaScriptEnabled(true);
-
         // use the Java object in JS
         JSObject window = (JSObject) webEngine.executeScript("window");
         JavaBridge bridge = new JavaBridge(cityInput);
         window.setMember("javaApp", bridge);
-        
-        // build JS function for geolocation
-        String script = """
-            function(position) {
-                console.log("Location permission granted");
-                let lat = position.coords.latitude;
-                let lon = position.coords.longitude;
-                console.log("Latitude: " + lat + ", Longitude: " + lon);
-            },
-            function(error) {
-                console.error("Geolocation error:", error);
-                alert("Geolocation error: " + error.message);
-            }
-                
-            // navigator.geolocation.getCurrentPosition(
-            //     function(position) {
-            //         let lat = position.coords.latitude;
-            //         let lon = position.coords.longitude;
 
-            //         // Send the lat and lon to the backend to get weather info
-            //         fetch(`http://localhost:8080/api/weather/location?lat=${lat}&lon=${lon}`)
-            //             .then(response => response.text())
-            //             .then(data => {
-            //                 console.log("Received city from backend: " + data); // delete later 
-            //                 window.javaApp.setCity(data);
-            //             })
-            //             .catch(error => console.error('Error fetching location:', error));
-            //     }, 
-            //     function(error) {
-            //         console.error("Error getting location:", error);
-            //     }
-            // );
-        """;
+
+        // delete his later.  jsut for debugging for now
+        webEngine.setOnAlert(event -> 
+            System.out.println("webview alert: " + event.getData())
+        );
 
         // temporary check for errors  DELETE LATER
         webEngine.getLoadWorker().exceptionProperty().addListener((obs, oldException, newException) -> {
@@ -96,6 +68,28 @@ public class WeatherApp extends Application {
                 newException.printStackTrace();
             }
         });
+        
+        
+        // build JS function for geolocation
+        String script = """
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    let lat = position.coords.latitude;
+                    let lon = position.coords.longitude;
+
+                    fetch('http://localhost:8080/api/weather/location?lat=' + lat + '&lon=' + lon)
+                        .then(response => response.text())
+                        .then(data => {
+                            console.log("Received city from backend: " + data); // delete later 
+                            window.javaApp.setCity(data);
+                        })
+                        .catch(error => console.error('Error fetching location:', error));
+                }, 
+                function(error) {
+                    console.error("Error getting location:", error);
+                }
+            );
+        """;
 
         // run the JS in WebView
         webEngine.loadContent("<html><script>" + script + "</script></html>");
@@ -103,7 +97,7 @@ public class WeatherApp extends Application {
 
 
     private void getWeather() {
-        
+
     }
 
 
