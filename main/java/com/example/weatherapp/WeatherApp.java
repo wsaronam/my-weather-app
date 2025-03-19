@@ -65,32 +65,23 @@ public class WeatherApp extends Application {
         // temporary check for errors  DELETE LATER
         webEngine.getLoadWorker().exceptionProperty().addListener((obs, oldException, newException) -> {
             if (newException != null) {
+                System.out.println("JS error: ");
                 newException.printStackTrace();
             }
         });
         
-        
-        // build JS function for geolocation
+        // new test JS script
         String script = """
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    let lat = position.coords.latitude;
-                    let lon = position.coords.longitude;
-
-                    fetch('http://localhost:8080/api/weather/location?lat=' + lat + '&lon=' + lon)
-                        .then(response => response.text())
-                        .then(data => {
-                            console.log("Received city from backend: " + data); // delete later 
-                            window.javaApp.setCity(data);
-                        })
-                        .catch(error => console.error('Error fetching location:', error));
-                }, 
-                function(error) {
-                    console.error("Error getting location:", error);
-                }
-            );
+            fetch("https://ipapi.co/json/")
+                .then(response => response.json())
+                .then(data => {
+                    let city = data.city;
+                    console.log("IP-based location:", city);
+                    window.javaApp.setCity(city);
+                })
+                .catch(error => console.error("Error getting IP-based location:", error));
         """;
-
+        
         // run the JS in WebView
         webEngine.loadContent("<html><script>" + script + "</script></html>");
     }
