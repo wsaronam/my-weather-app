@@ -31,6 +31,17 @@ public class WeatherApp extends Application {
         primaryStage.setTitle("My Weather App");
         webEngine.setJavaScriptEnabled(true);
 
+
+        // wait for the page to be loaded and then set javaApp
+        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
+                JSObject window = (JSObject) webEngine.executeScript("window");
+                JavaBridge bridge = new JavaBridge(cityInput);
+                window.setMember("javaApp", bridge);
+            }
+        });
+
+
         // Build the main page stuff here
         cityInput = new TextField();
         cityInput.setPromptText("Enter city name...");
@@ -51,12 +62,6 @@ public class WeatherApp extends Application {
 
     private void getLocation(TextField cityInput) {
 
-        // use the Java object in JS
-        JSObject window = (JSObject) webEngine.executeScript("window");
-        JavaBridge bridge = new JavaBridge(cityInput);
-        window.setMember("javaApp", bridge);
-
-
         // delete his later.  jsut for debugging for now
         webEngine.setOnAlert(event -> 
             System.out.println("webview alert: " + event.getData())
@@ -72,12 +77,24 @@ public class WeatherApp extends Application {
         
         // new test JS script
         String script = """
+            alert("WebView script is running!");
             fetch("https://ipapi.co/json/")
                 .then(response => response.json())
                 .then(data => {
                     let city = data.city;
                     console.log("IP-based location:", city);
-                    window.javaApp.setCity(city);
+                    alert("IP-based location:", city);
+
+                    if (window.javaApp) {
+                        console.log("calling setCity()");
+                        alert("calling setCity()");
+                        window.javaApp.setCity(city);
+                    }
+                    else {
+                        console.log("javaApp undefined or JavaBridge not connected");
+                        alert("javaApp undefined or JavaBridge not connected");
+                    }
+                    
                 })
                 .catch(error => console.error("Error getting IP-based location:", error));
         """;
