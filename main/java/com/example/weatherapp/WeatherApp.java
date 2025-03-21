@@ -33,13 +33,13 @@ public class WeatherApp extends Application {
 
 
         // wait for the page to be loaded and then set javaApp
-        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-            if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
-                JSObject window = (JSObject) webEngine.executeScript("window");
-                JavaBridge bridge = new JavaBridge(cityInput);
-                window.setMember("javaApp", bridge);
-            }
-        });
+        // webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+        //     if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
+        //         JSObject window = (JSObject) webEngine.executeScript("window");
+        //         JavaBridge bridge = new JavaBridge(cityInput);
+        //         window.setMember("javaApp", bridge);
+        //     }
+        // });
 
 
         // Build the main page stuff here
@@ -57,6 +57,13 @@ public class WeatherApp extends Application {
         scene.getStylesheets().add(getClass().getResource("/static/styles.css").toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
+
+
+        
+        // MOVED WEBENGINE STUFF DOWN HERE MAYBE ORDER WILL MATTER
+        JSObject window = (JSObject) webEngine.executeScript("window");
+        JavaBridge bridge = new JavaBridge(cityInput);
+        window.setMember("javaApp", bridge);
     }
 
 
@@ -100,7 +107,8 @@ public class WeatherApp extends Application {
         """;
         
         // run the JS in WebView
-        webEngine.loadContent("<html><script>" + script + "</script></html>");
+        //webEngine.loadContent("<html><script>" + script + "</script></html>");
+        webEngine.executeScript(script);
     }
 
 
