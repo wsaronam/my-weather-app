@@ -23,7 +23,6 @@ public class WeatherApp extends Application {
     // create webview so we can run JS for geolocation
     WebView webView = new WebView();
     WebEngine webEngine = webView.getEngine();
-    
 
 
     @Override
@@ -31,6 +30,10 @@ public class WeatherApp extends Application {
         primaryStage.setTitle("My Weather App");
         webEngine.setJavaScriptEnabled(true);
 
+        // delete his later.  jsut for debugging for now
+        webEngine.setOnAlert(event -> 
+            System.out.println("webview alert: " + event.getData())
+        );
 
         // wait for the page to be loaded and then set javaApp
         // webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
@@ -58,9 +61,7 @@ public class WeatherApp extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-
-        
-        // MOVED WEBENGINE STUFF DOWN HERE MAYBE ORDER WILL MATTER
+        // set up javaApp stuff
         JSObject window = (JSObject) webEngine.executeScript("window");
         JavaBridge bridge = new JavaBridge(cityInput);
         window.setMember("javaApp", bridge);
@@ -69,11 +70,6 @@ public class WeatherApp extends Application {
 
     private void getLocation(TextField cityInput) {
 
-        // delete his later.  jsut for debugging for now
-        webEngine.setOnAlert(event -> 
-            System.out.println("webview alert: " + event.getData())
-        );
-
         // temporary check for errors  DELETE LATER
         webEngine.getLoadWorker().exceptionProperty().addListener((obs, oldException, newException) -> {
             if (newException != null) {
@@ -81,30 +77,56 @@ public class WeatherApp extends Application {
                 newException.printStackTrace();
             }
         });
+
         
+
         // new test JS script
         String script = """
-            alert("WebView script is running!");
-            fetch("https://ipapi.co/json/")
-                .then(response => response.json())
-                .then(data => {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "https://ipapi.co/json/", true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    alert("raw response: " + xhr.responseText);
+                    var data = JSON.parse(xhr.responseText);
+                    alert("Full API Response: " + JSON.stringify(data));
                     let city = data.city;
-                    console.log("IP-based location:", city);
-                    alert("IP-based location:", city);
+                    alert("city: " + city);
 
                     if (window.javaApp) {
-                        console.log("calling setCity()");
-                        alert("calling setCity()");
+                        alert("Calling setCity() with: " + city);
                         window.javaApp.setCity(city);
-                    }
+                    } 
                     else {
-                        console.log("javaApp undefined or JavaBridge not connected");
                         alert("javaApp undefined or JavaBridge not connected");
                     }
-                    
-                })
-                .catch(error => console.error("Error getting IP-based location:", error));
+                }
+            };
+            xhr.send();
         """;
+        
+        // // new test JS script
+        // String script = """
+        //     alert("WebView script is running!");
+        //     fetch("https://ipapi.co/json/")
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             let city = data.city;
+        //             console.log("IP-based location:", city);
+        //             alert("IP-based location:", city);
+
+        //             if (window.javaApp) {
+        //                 console.log("calling setCity()");
+        //                 alert("calling setCity()");
+        //                 window.javaApp.setCity(city);
+        //             }
+        //             else {
+        //                 console.log("javaApp undefined or JavaBridge not connected");
+        //                 alert("javaApp undefined or JavaBridge not connected");
+        //             }
+                    
+        //         })
+        //         .catch(error => console.error("Error getting IP-based location:", error));
+        // """;
         
         // run the JS in WebView
         //webEngine.loadContent("<html><script>" + script + "</script></html>");
