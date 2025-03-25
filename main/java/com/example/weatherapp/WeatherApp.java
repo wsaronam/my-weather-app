@@ -25,8 +25,11 @@ public class WeatherApp extends Application {
     WebEngine webEngine = webView.getEngine();
 
 
+
+
     @Override
     public void start(Stage primaryStage) {
+
         primaryStage.setTitle("My Weather App");
         webEngine.setJavaScriptEnabled(true);
 
@@ -64,6 +67,8 @@ public class WeatherApp extends Application {
         // set up javaApp stuff
         JSObject window = (JSObject) webEngine.executeScript("window");
         JavaBridge bridge = new JavaBridge(cityInput);
+
+        // connect javaApp and JavaBridge
         window.setMember("javaApp", bridge);
     }
 
@@ -79,6 +84,19 @@ public class WeatherApp extends Application {
         });
 
         
+        // // TEST SCRIPT
+        // String script = """
+        //     alert("testing JavaBridge?");
+
+        //     if (window.javaApp) {
+        //         alert("javabridge exists, calling setCity()");
+        //         window.javaApp.setCity("Testttt");
+        //     } 
+        //     else {
+        //         alert("JavaBridge undefined");
+        //     }
+        // """;
+
 
         // new test JS script
         String script = """
@@ -100,6 +118,10 @@ public class WeatherApp extends Application {
                         alert("javaApp undefined or JavaBridge not connected");
                     }
                 }
+            };
+            xhr.onerror = function () {
+                alert("xhr request failed");
+                console.log("xhr request failed");
             };
             xhr.send();
         """;
@@ -130,7 +152,14 @@ public class WeatherApp extends Application {
         
         // run the JS in WebView
         //webEngine.loadContent("<html><script>" + script + "</script></html>");
-        webEngine.executeScript(script);
+        //webEngine.executeScript(script);
+
+        // run script only if webengine or javaapp/javabridge connected
+        webEngine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
+                webEngine.loadContent("<html><script>" + script + "</script></html>");
+            }
+        });
     }
 
 
