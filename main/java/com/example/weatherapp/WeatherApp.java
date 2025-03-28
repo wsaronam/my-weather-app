@@ -91,7 +91,8 @@ public class WeatherApp extends Application {
 
 
     private void getWeather(Stage primaryStage) {
-        WeatherScreen weatherScreen = new WeatherScreen(primaryStage);
+        String cityName = cityInput.getText();
+        WeatherScreen weatherScreen = new WeatherScreen(primaryStage, cityName);
         primaryStage.setScene(weatherScreen.getScene());
     }
 
