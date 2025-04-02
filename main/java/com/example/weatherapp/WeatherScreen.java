@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.json.JSONObject;
 
+import com.example.weatherapp.JavaFX_Helpers.WeatherBackground;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -16,6 +18,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -36,20 +45,17 @@ public class WeatherScreen {
 
 
     public WeatherScreen(Stage primaryStage, String cityName) {
-        this.cityName = cityName;
 
-        // insert weather data into html
-        // document.getElementById("city-name").textContent = `${currentWeather.name}, ${currentWeather.sys.country}`;
-        // document.getElementById("temperature").textContent = `${currentWeather.main.temp}F`;
-        // // document.getElementById("feels-like").textContent = `${weatherData.main.feels_like}F`;
-        // document.getElementById("condition").textContent = `${currentWeather.weather[0].main} - ${currentWeather.weather[0].description}`;
-        // document.getElementById("humidity").textContent = `${currentWeather.main.humidity}%`;
-        // document.getElementById("wind-speed").textContent = `${currentWeather.wind.speed} m/s`;
-        // document.getElementById("pressure").textContent = `${currentWeather.main.pressure} hPa`;
-
+        // insert weather data variables into labels
         JSONObject weatherData = getWeatherData(cityName);
         JSONObject currentWeather = weatherData.getJSONObject("currentWeather");
-        this.temperature = String.valueOf(currentWeather.getJSONObject("main").getInt("temp"));
+        this.cityName = cityName;
+        this.temperature = String.valueOf(currentWeather.getJSONObject("main").getInt("temp")) + " F";
+        this.condition = currentWeather.getJSONArray("weather").getJSONObject(0).getString("main") + " - " + 
+            currentWeather.getJSONArray("weather").getJSONObject(0).getString("description");
+        this.humidity = String.valueOf(currentWeather.getJSONObject("main").getInt("humidity")) + "%";
+        this.windSpeed = String.valueOf(currentWeather.getJSONObject("wind").getInt("speed")) + " m/s";
+        this.pressure = String.valueOf(currentWeather.getJSONObject("main").getInt("pressure")) + " hPa";
 
 
 
@@ -61,11 +67,16 @@ public class WeatherScreen {
 
         Label cityNameLabel = new Label("Weather data for: " + this.cityName);
         Label cityTempLabel = new Label("Temperature: " + this.temperature);
+        Label cityCondLabel = new Label("Condition: " + this.condition);
+        Label cityHumidLabel = new Label("Humidity: " + this.humidity);
+        Label cityWindLabel = new Label("Wind Speed: " + this.windSpeed);
+        Label cityPressLabel = new Label("Pressure: " + this.pressure);
 
-        VBox layout = new VBox(10, backButton, cityNameLabel, cityTempLabel);
+        VBox layout = new VBox(10, backButton, cityNameLabel, cityTempLabel, cityCondLabel, cityHumidLabel, cityWindLabel, cityPressLabel);
         layout.setPadding(new Insets(20));
 
         this.scene = new Scene(layout, 1920, 1080);
+        setWeatherBackground(layout, this.condition); 
         scene.getStylesheets().add(getClass().getResource("/static/styles.css").toExternalForm());
     }
 
@@ -115,6 +126,55 @@ public class WeatherScreen {
         }
         
         return jsonRef.get();
+    }
+
+
+    public static void setWeatherBackground(VBox root, String condition) {
+        String imageUrl;
+
+        switch (condition) {
+            case "Clear":
+                imageUrl = "https://plus.unsplash.com/premium_photo-1727730047398-49766e915c1d?q=80&w=2712&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+                break;
+            case "Clouds":
+                imageUrl = "https://plus.unsplash.com/premium_photo-1667689956673-8737a299aa8c?q=80&w=2576&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+                break;
+            case "Rain":
+                imageUrl = "https://images.unsplash.com/photo-1607500098489-1991d1fbab7a?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+                break;
+            case "Snow":
+                imageUrl = "https://plus.unsplash.com/premium_photo-1669325007869-d3b17d2d31e6?q=80&w=2575&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+                break;
+            case "Thunderstorm":
+                imageUrl = "https://plus.unsplash.com/premium_photo-1673278171340-99b4dbf0418f?q=80&w=2572&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+                break;
+            default:
+                imageUrl = "https://plus.unsplash.com/premium_photo-1701646600064-3365efea1ba8?q=80&w=2664&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+        }
+
+        // create the image for background
+        Image backgroundImage = new Image(imageUrl, true); // second argument for background loading
+
+        // edit background image properties
+        BackgroundImage bgImage = new BackgroundImage(
+            backgroundImage,
+            BackgroundRepeat.NO_REPEAT, // horizontal
+            BackgroundRepeat.NO_REPEAT, // vertical
+            BackgroundPosition.CENTER,
+            
+            // backgroundsize arguments:
+            // width, height, widthAsPercentage, heightAsPercentage, contain, cover
+            new BackgroundSize(100, 100, true, true, true, true)
+        );
+
+        // wait for the image to load
+        backgroundImage.progressProperty().addListener((obs, oldProgress, newProgress) -> {
+            if (newProgress.doubleValue() == 1.0) { 
+                // set background to pane
+                System.out.println(imageUrl);
+                root.setBackground(new Background(bgImage));
+            }
+        });
     }
     
 }
