@@ -1,30 +1,28 @@
 package com.example.weatherapp;
 
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.json.JSONObject;
+import org.json.JSONArray;
 
-import com.example.weatherapp.JavaFX_Helpers.WeatherBackground;
-
-import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -49,6 +47,7 @@ public class WeatherScreen {
         // insert weather data variables into labels
         JSONObject weatherData = getWeatherData(cityName);
         JSONObject currentWeather = weatherData.getJSONObject("currentWeather");
+        getFiveDayForecast(weatherData);
         this.cityName = cityName;
         this.temperature = String.valueOf(currentWeather.getJSONObject("main").getInt("temp")) + " F";
         this.condition = currentWeather.getJSONArray("weather").getJSONObject(0).getString("main") + " - " + 
@@ -129,7 +128,7 @@ public class WeatherScreen {
     }
 
 
-    public static void setWeatherBackground(VBox root, String condition) {
+    private static void setWeatherBackground(VBox root, String condition) {
         String imageUrl;
 
         switch (condition) {
@@ -170,11 +169,30 @@ public class WeatherScreen {
         // wait for the image to load
         backgroundImage.progressProperty().addListener((obs, oldProgress, newProgress) -> {
             if (newProgress.doubleValue() == 1.0) { 
-                // set background to pane
-                System.out.println(imageUrl);
+                // set background to VBox
                 root.setBackground(new Background(bgImage));
             }
         });
     }
     
+
+    private static Map<String, JSONObject> getFiveDayForecast(JSONObject weatherData) {
+        JSONObject fiveDayForecast = weatherData.getJSONObject("fiveDayForecast");
+        Object[] forecastArr = fiveDayForecast.toMap().values().toArray();
+
+        Map<String, JSONObject> dailyForecasts = new LinkedHashMap<>(); // store the desired information here
+
+        for (Object entry : forecastArr) {
+            System.out.println(entry);
+            // String dateTime = entry.getString("dt_txt");
+            // String date = dateTime.split(" ")[0]; // extract dates in this format (YYYY-MM-DD)
+
+            // // get the mid-day forecast
+            // if (!dailyForecasts.containsKey(date) && dateTime.contains("12:00:00")) {
+            //     dailyForecasts.put(date, entry);
+            // }
+        }
+
+        return dailyForecasts;
+    }
 }

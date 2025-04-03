@@ -99,7 +99,6 @@ function displayWeather() {
 
 
     const fiveDayForecast = weatherData["fiveDayForecast"].list;
-    console.log(fiveDayForecast);
     const forecastContainer = document.getElementById("forecast");
 
     const dailyForecasts = {}; // plan to store a mid-day forecast every day for the 5 day forecast
