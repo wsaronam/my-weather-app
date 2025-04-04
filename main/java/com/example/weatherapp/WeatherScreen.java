@@ -17,6 +17,8 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -25,6 +27,7 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
 
 
 
@@ -178,21 +181,28 @@ public class WeatherScreen {
 
     private static Map<String, JSONObject> getFiveDayForecast(JSONObject weatherData) {
         JSONObject fiveDayForecast = weatherData.getJSONObject("fiveDayForecast");
-        Object[] forecastArr = fiveDayForecast.toMap().values().toArray();
+        JSONArray forecastArr = fiveDayForecast.getJSONArray("list");
 
         Map<String, JSONObject> dailyForecasts = new LinkedHashMap<>(); // store the desired information here
 
-        for (Object entry : forecastArr) {
-            System.out.println(entry);
-            // String dateTime = entry.getString("dt_txt");
-            // String date = dateTime.split(" ")[0]; // extract dates in this format (YYYY-MM-DD)
+        for (int i = 0; i < forecastArr.length(); i++) {
+            JSONObject entry = forecastArr.getJSONObject(i);
+            
+            String dateTime = entry.getString("dt_txt");
+            String date = dateTime.split(" ")[0]; // extract dates in this format (YYYY-MM-DD)
 
-            // // get the mid-day forecast
-            // if (!dailyForecasts.containsKey(date) && dateTime.contains("12:00:00")) {
-            //     dailyForecasts.put(date, entry);
-            // }
+            // get the mid-day forecast
+            if (!dailyForecasts.containsKey(date) && dateTime.contains("12:00:00")) {
+                dailyForecasts.put(date, entry);
+            }
         }
 
+        System.out.println(dailyForecasts);
         return dailyForecasts;
+    }
+
+
+    private static void buildForecastTable(Map<String, JSONObject> forecasts) {
+        //TableView<> tableView = new TableView<>();
     }
 }
