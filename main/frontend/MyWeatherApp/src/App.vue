@@ -1,18 +1,22 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import HomeScreen from './components/HomeScreen.vue'
+
+import TitleCard from './components/TitleCard.vue'
+import TheWelcome from './components/examples/TheWelcome.vue'
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+    <img alt="One Piece Log Pose" class="logo" src="https://static.wikia.nocookie.net/onepiece/images/e/ef/Paradise_Log_Pose.png" 
+    width="125" height="125" />
 
     <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+      <TitleCard msg="My Weather App" />
     </div>
   </header>
 
   <main>
+    <HomeScreen />
     <TheWelcome />
   </main>
 </template>
