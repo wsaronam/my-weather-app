@@ -1,0 +1,7 @@
+com\example\weatherapp\service\WeatherService.class
+com\example\weatherapp\GeolocationResponse.class
+com\example\weatherapp\config\WebConfig$1.class
+com\example\weatherapp\AppConfig.class
+com\example\weatherapp\config\WebConfig.class
+com\example\weatherapp\WeatherApplication.class
+com\example\weatherapp\controller\WeatherController.class
