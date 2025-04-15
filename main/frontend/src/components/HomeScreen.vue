@@ -1,3 +1,20 @@
+<script setup lang="ts">
+  import { ref } from "vue";
+  import { locateUser } from "../utils/geolocation";
+
+  const cityInput = ref("");
+
+  function getLocation() {
+    locateUser((cityName) => {
+      console.log("City from location:", cityName);
+      cityInput.value = cityName;
+    });
+  }
+</script>
+
+
+
+
 <template>
   <div>
     <h3>
@@ -12,19 +29,6 @@
 </template>
 
 
-<script setup lang="ts">
-  import { ref } from "vue";
-  import { locateUser } from "@/utils/geolocation";
-
-  const cityInput = ref("");
-
-  function getLocation() {
-    locateUser((cityName) => {
-      console.log("City from location:", cityName);
-      cityInput.value = cityName;
-    });
-  }
-</script>
 
 
 <style scoped>

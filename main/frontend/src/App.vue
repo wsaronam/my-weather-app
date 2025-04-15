@@ -17,7 +17,7 @@ import TheWelcome from './components/examples/TheWelcome.vue'
 
   <main>
     <HomeScreen />
-    <TheWelcome />
+    <!-- <TheWelcome /> -->
   </main>
 </template>
 

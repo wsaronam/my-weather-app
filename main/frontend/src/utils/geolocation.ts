@@ -1,5 +1,5 @@
 // This function will use the API to search for the user's current location and put it in the search bar
-export function locateUser(setCityCallback) {
+export function locateUser(setCityCallback: (cityName: string) => void): void {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             const lat = position.coords.latitude;
