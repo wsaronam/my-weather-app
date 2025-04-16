@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { ref } from "vue";
 </script>
 
 
@@ -6,7 +7,7 @@
 
 <template>
   <div>
-    Weather Screen
+    <h1>Weather Screen</h1>
   </div>
 </template>
 

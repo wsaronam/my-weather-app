@@ -1,7 +1,10 @@
 <script setup lang="ts">
   import { ref } from "vue";
+  import { useRouter } from 'vue-router';
   import { locateUser } from "../utils/geolocation";
+  import { searchForWeatherData } from '../utils/weatherdata';
 
+  const router = useRouter();
   const cityInput = ref("");
 
   function getLocation() {
@@ -9,6 +12,11 @@
       console.log("City from location:", cityName);
       cityInput.value = cityName;
     });
+  }
+
+  async function handleFormSubmit() {
+    const weatherData = await searchForWeatherData(cityInput.value);
+    router.push('/weather');
   }
 </script>
 
@@ -20,7 +28,7 @@
     <h3>
       Enter a city name to find some basic weather information about it:
     </h3>
-        <form>
+        <form @submit.prevent="handleFormSubmit">
             <input type="text" v-model="cityInput" id="cityName" placeholder="Enter city name" />
             <button type="submit">Get Weather</button>
         </form>

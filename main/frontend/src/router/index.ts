@@ -3,8 +3,14 @@ import HomeScreen from '../components/HomeScreen.vue'
 import WeatherScreen from '../components/WeatherScreen.vue'
 
 const routes = [
-  { path: '/', name: 'Home', component: HomeScreen },
-  { path: '/weather', name: 'Weather', component: WeatherScreen }
+  { path: '/', 
+    name: 'Home', 
+    component: HomeScreen 
+  },
+  { path: '/weather', 
+    name: 'Weather', 
+    component: WeatherScreen 
+  }
 ]
 
 const router = createRouter({

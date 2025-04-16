@@ -16,7 +16,7 @@ import TheWelcome from './components/examples/TheWelcome.vue'
   </header>
 
   <main>
-    <HomeScreen />
+    <router-view />
     <!-- <TheWelcome /> -->
   </main>
 </template>
