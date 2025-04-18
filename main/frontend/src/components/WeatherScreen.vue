@@ -12,6 +12,7 @@
     humidity,
     windSpeed,
     pressure,
+    fiveDayForecast,
     processWeatherData,
   } = displayWeather();
 
@@ -49,6 +50,13 @@
       <p>Humidity: {{ humidity }}%</p>
       <p>Wind: {{ windSpeed }} m/s</p>
       <p>Pressure: {{ pressure }} hPa</p>
+    </div><br>
+    <div id="forecast">
+      <div v-for="(item) in fiveDayForecast" class="forecast-item">
+        <p><strong>{{ item.day }}</strong></p>
+        <img :src="`https://openweathermap.org/img/wn/${item.icon}@2x.png`" alt="Weather Icon" />
+        <p>{{ item.temp }}°F</p>
+      </div>
     </div>
     <button @click="goBackHome" class="back-button">Back to Search</button>
   </div>
