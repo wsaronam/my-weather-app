@@ -51,11 +51,12 @@
       <p>Wind: {{ windSpeed }} m/s</p>
       <p>Pressure: {{ pressure }} hPa</p>
     </div><br>
-    <div id="forecast">
+    <div id="forecast" class="forecast-container">
       <div v-for="(item) in fiveDayForecast" class="forecast-item">
         <p><strong>{{ item.day }}</strong></p>
         <img :src="`https://openweathermap.org/img/wn/${item.icon}@2x.png`" alt="Weather Icon" />
-        <p>{{ item.temp }}°F</p>
+        <p>High: {{ item.high }}°F</p>
+        <p>Low: {{ item.low }}°F</p>
       </div>
     </div>
     <button @click="goBackHome" class="back-button">Back to Search</button>
@@ -102,4 +103,13 @@ h3 {
 .back-button:hover {
   background-color: #45a049;
 }
+
+.forecast-container {
+  display: flex;
+  flex-direction: row;         
+  justify-content: space-around;  
+  flex-wrap: wrap;             
+  gap: 1rem;                   
+}
+
 </style>

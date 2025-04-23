@@ -48,7 +48,7 @@ export function displayWeather() {
 
 
     // build dict of date - data pairs (one entry per day)
-    const dailyForecasts: Record<string, any> = {};
+    const dailyForecasts: Record<string, { max: any, min: any }> = {};
     rawData.fiveDayForecast.list.forEach((entry: any) => {
 
       // convert our local time to utc time to match api data
@@ -62,23 +62,16 @@ export function displayWeather() {
       console.log(hour);
       console.log(noonDiff);
 
-
-
-      const [date, time] = entry.dt_txt.split(' ');
-      const existingEntry = dailyForecasts[dateStr];
-      console.log(existingEntry);
-      
-      // if entry does not exist, we take the data first 
-      if (!existingEntry) {
-        dailyForecasts[dateStr] = entry;
+      // get the highest and lowest temperatures of the day
+      if (!dailyForecasts[dateStr]) {
+        dailyForecasts[dateStr] = {max: entry, min: entry};
       }
-      // replace entry if the time is closer to 12PM
       else {
-        const existingHour = new Date((existingEntry.dt + timezoneOffset) * 1000).getHours();
-        const existingNoonDiff = Math.abs(existingHour - 12);
-        
-        if (noonDiff < existingNoonDiff) {
-          dailyForecasts[dateStr] = entry;
+        if (entry.main.temp > dailyForecasts[dateStr].max.main.temp) {  // temp found higher than max
+          dailyForecasts[dateStr].max = entry;
+        }
+        if (entry.main.temp < dailyForecasts[dateStr].min.main.temp) {  // temp found lower than min
+          dailyForecasts[dateStr].min = entry;
         }
       }
 
@@ -90,14 +83,15 @@ export function displayWeather() {
     });
 
     // build objects array for use in WeatherScreen
-    fiveDayForecast.value = Object.values(dailyForecasts).map((entry: any) => {
-      const localTimestamp = entry.dt + timezoneOffset;
-      const localDate = new Date(localTimestamp * 1000);
+    fiveDayForecast.value = Object.entries(dailyForecasts).map(([dateStr, {max,min}]) => {
+      const localTimestamp = (max.dt + timezoneOffset) * 1000;
+      const localDate = new Date(localTimestamp);
 
       return {
         day: localDate.toLocaleDateString('en-US', { weekday: 'long' }),
-        temp: entry.main.temp,
-        icon: entry.weather[0].icon,
+        high: max.main.temp,
+        low: min.main.temp,
+        icon: max.weather[0].icon,
       }
       
     });
