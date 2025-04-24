@@ -54,13 +54,7 @@ export function displayWeather() {
       // convert our local time to utc time to match api data
       const localTimestamp = entry.dt + timezoneOffset;
       const localDate = new Date(localTimestamp * 1000);
-      console.log(localDate);
       const dateStr = localDate.toISOString().split('T')[0];
-      console.log(dateStr);
-      const hour = localDate.getHours();
-      const noonDiff = Math.abs(hour - 12);
-      console.log(hour);
-      console.log(noonDiff);
 
       // get the highest and lowest temperatures of the day
       if (!dailyForecasts[dateStr]) {
@@ -75,15 +69,10 @@ export function displayWeather() {
         }
       }
 
-      // if (!dailyForecasts[date] && time == '12:00:00') {
-      //   console.log(entry);
-      //   dailyForecasts[date] = entry;
-      // }
-
     });
 
     // build objects array for use in WeatherScreen
-    fiveDayForecast.value = Object.entries(dailyForecasts).map(([dateStr, {max,min}]) => {
+    fiveDayForecast.value = Object.entries(dailyForecasts).slice(0, 5).map(([dateStr, {max,min}]) => {
       const localTimestamp = (max.dt + timezoneOffset) * 1000;
       const localDate = new Date(localTimestamp);
 
@@ -110,4 +99,13 @@ export function displayWeather() {
     fiveDayForecast,
     processWeatherData,
   };
+}
+
+
+// This function will convert temperatures to other units (imperial, metric, kelvin)
+export function changeTempUnits(temp: number, toUnit: string) {
+  if (toUnit === 'imperial') return `${Math.round(temp)} °F`;
+  if (toUnit === 'metric') return `${Math.round((temp - 32) * 5 / 9)} °C`;
+  if (toUnit === 'kelvin') return `${Math.round((temp - 32) * 5 / 9 + 273.15)} K`;
+  return temp;
 }

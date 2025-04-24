@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { ref, onMounted } from "vue";
   import { useRouter } from 'vue-router';
-  import { displayWeather } from "../utils/weatherdata";
+  import { displayWeather, changeTempUnits } from "../utils/weatherdata";
 
   const router = useRouter();
 
@@ -15,6 +15,8 @@
     fiveDayForecast,
     processWeatherData,
   } = displayWeather();
+
+  const unit = ref('imperial');
 
 
   onMounted(() => {
@@ -36,6 +38,10 @@
     router.push('/');
   }
 
+  function getConvertedTemp(temp: number) {
+    return changeTempUnits(temp, unit.value);
+  }
+
 </script>
 
 
@@ -44,8 +50,13 @@
 <template>
   <div>
     <h1>{{ cityName }}</h1>
+    <select v-model="unit">
+      <option value="imperial">Fahrenheit (°F)</option>
+      <option value="metric">Celsius (°C)</option>
+      <option value="kelvin">Kelvin (K)</option>
+    </select><br>
     <div>
-      <p>{{ temperature }} °F</p>
+      <p>{{ getConvertedTemp(Number(temperature)) }}</p>
       <p>{{ condition }}</p>
       <p>Humidity: {{ humidity }}%</p>
       <p>Wind: {{ windSpeed }} m/s</p>
@@ -55,8 +66,8 @@
       <div v-for="(item) in fiveDayForecast" class="forecast-item">
         <p><strong>{{ item.day }}</strong></p>
         <img :src="`https://openweathermap.org/img/wn/${item.icon}@2x.png`" alt="Weather Icon" />
-        <p>High: {{ item.high }}°F</p>
-        <p>Low: {{ item.low }}°F</p>
+        <p>High: {{ getConvertedTemp(Number(item.high)) }}</p>
+        <p>Low: {{ getConvertedTemp(Number(item.low)) }}</p>
       </div>
     </div>
     <button @click="goBackHome" class="back-button">Back to Search</button>
