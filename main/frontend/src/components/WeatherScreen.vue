@@ -50,7 +50,7 @@
 <template>
   <div>
     <h1>{{ cityName }}</h1>
-    <select v-model="unit">
+    <select v-model="unit" class="dropdown-menu">
       <option value="imperial">Fahrenheit (°F)</option>
       <option value="metric">Celsius (°C)</option>
       <option value="kelvin">Kelvin (K)</option>
@@ -101,6 +101,23 @@ h3 {
   }
 }
 
+.dropdown-menu {
+  padding: 0.75rem 1rem;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  background-color: #f9fafb;
+  color: #111827;
+  box-shadow: 0 2px 6px black;
+  cursor: pointer;
+}
+
+.dropdown-menu:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px darkblue;
+}
+
 .back-button {
   margin-top: 20px;
   padding: 10px 16px;
@@ -113,6 +130,7 @@ h3 {
 
 .back-button:hover {
   background-color: #45a049;
+  transform: translateY(-1px);
 }
 
 .forecast-container {
